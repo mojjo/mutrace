@@ -398,15 +398,12 @@ static void load_functions(void) {
         LOAD_FUNC(pthread_rwlock_timedwrlock);
         LOAD_FUNC(pthread_rwlock_unlock);
 
-        /* There's some kind of weird incompatibility problem causing
-         * pthread_cond_timedwait() to freeze if we don't ask for this
-         * explicit version of these functions */
-        LOAD_FUNC_VERSIONED(pthread_cond_init, "GLIBC_2.3.2");
-        LOAD_FUNC_VERSIONED(pthread_cond_destroy, "GLIBC_2.3.2");
-        LOAD_FUNC_VERSIONED(pthread_cond_signal, "GLIBC_2.3.2");
-        LOAD_FUNC_VERSIONED(pthread_cond_broadcast, "GLIBC_2.3.2");
-        LOAD_FUNC_VERSIONED(pthread_cond_wait, "GLIBC_2.3.2");
-        LOAD_FUNC_VERSIONED(pthread_cond_timedwait, "GLIBC_2.3.2");
+        LOAD_FUNC(pthread_cond_init);
+        LOAD_FUNC(pthread_cond_destroy);
+        LOAD_FUNC(pthread_cond_signal);
+        LOAD_FUNC(pthread_cond_broadcast);
+        LOAD_FUNC(pthread_cond_wait);
+        LOAD_FUNC(pthread_cond_timedwait);
 
         LOAD_FUNC(exit);
         LOAD_FUNC(_exit);
@@ -1253,7 +1250,7 @@ static bool verify_frame(const char *s) {
 }
 
 static int light_backtrace(void **buffer, int size) {
-#if defined(__i386__) || defined(__x86_64__)
+#if defined(__i386__) || defined(__x86_64__) || defined(__arm__) || defined(__aarch64__)
         int osize = 0;
         void *stackaddr;
         size_t stacksize;
@@ -1264,9 +1261,9 @@ static int light_backtrace(void **buffer, int size) {
         pthread_attr_getstack(&attr, &stackaddr, &stacksize);
         pthread_attr_destroy(&attr);
 
-#if defined(__i386__)
+#if defined(__i386__) || defined(__arm__)
         __asm__("mov %%ebp, %[frame]": [frame] "=r" (frame));
-#elif defined(__x86_64__)
+#elif defined(__x86_64__) || defined(__aarch64__)
         __asm__("mov %%rbp, %[frame]": [frame] "=r" (frame));
 #endif
         while (osize < size &&
