@@ -1261,11 +1261,13 @@ static int light_backtrace(void **buffer, int size) {
         pthread_attr_getstack(&attr, &stackaddr, &stacksize);
         pthread_attr_destroy(&attr);
 
-#if defined(__i386__) || defined(__arm__)
-        __asm__("mov %%ebp, %[frame]": [frame] "=r" (frame));
-#elif defined(__x86_64__) || defined(__aarch64__)
+
+#if defined(__x86_64__) || defined(__aarch64__)
         __asm__("mov %%rbp, %[frame]": [frame] "=r" (frame));
+#elif defined(__i386__) || defined(__arm__)
+        __asm__("mov %%ebp, %[frame]": [frame] "=r" (frame));
 #endif
+        
         while (osize < size &&
                frame >= stackaddr &&
                frame < (void *)((char *)stackaddr + stacksize)) {
