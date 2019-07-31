@@ -580,6 +580,13 @@ static void setup(void) {
 
         fprintf(stderr, "mutrace: "PACKAGE_VERSION" successfully initialized for process %s (PID: %lu).\n",
                 get_prname(), (unsigned long) getpid());
+
+#if defined(__x86_64__) || defined(__aarch64__)
+        fprintf(stderr, "mutrace: __aarch64__");
+#endif
+#if defined(__i386__) || defined(__arm__)
+        fprintf(stderr, "mutrace: __arm__");
+#endif
 }
 
 static unsigned long mutex_hash(pthread_mutex_t *mutex) {
@@ -1267,7 +1274,7 @@ static int light_backtrace(void **buffer, int size) {
 #elif defined(__i386__) || defined(__arm__)
         __asm__("mov %%ebp, %[frame]": [frame] "=r" (frame));
 #endif
-        
+
         while (osize < size &&
                frame >= stackaddr &&
                frame < (void *)((char *)stackaddr + stacksize)) {
