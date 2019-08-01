@@ -413,6 +413,10 @@ static void load_functions(void) {
         LOAD_FUNC(backtrace_symbols);
         LOAD_FUNC(backtrace_symbols_fd);
 
+        LOAD_FUNC(real_backtrace);
+        LOAD_FUNC(real_backtrace_symbols);
+        LOAD_FUNC(real_backtrace_symbols_fd);
+
         loaded = true;
         recursive = false;
 }
@@ -580,13 +584,6 @@ static void setup(void) {
 
         fprintf(stderr, "mutrace: "PACKAGE_VERSION" successfully initialized for process %s (PID: %lu).\n",
                 get_prname(), (unsigned long) getpid());
-
-#if defined(__x86_64__) || defined(__aarch64__)
-        fprintf(stderr, "mutrace: __aarch64__");
-#endif
-#if defined(__i386__) || defined(__arm__)
-        fprintf(stderr, "mutrace: __arm__");
-#endif
 }
 
 static unsigned long mutex_hash(pthread_mutex_t *mutex) {
@@ -1257,7 +1254,7 @@ static bool verify_frame(const char *s) {
 }
 
 static int light_backtrace(void **buffer, int size) {
-#if defined(__i386__) || defined(__x86_64__) || defined(__arm__) || defined(__aarch64__)
+#if defined(__i386__) || defined(__x86_64__)
         int osize = 0;
         void *stackaddr;
         size_t stacksize;
@@ -1269,9 +1266,9 @@ static int light_backtrace(void **buffer, int size) {
         pthread_attr_destroy(&attr);
 
 
-#if defined(__x86_64__) || defined(__aarch64__)
+#if defined(__x86_64__)
         __asm__("mov %%rbp, %[frame]": [frame] "=r" (frame));
-#elif defined(__i386__) || defined(__arm__)
+#elif defined(__i386__)
         __asm__("mov %%ebp, %[frame]": [frame] "=r" (frame));
 #endif
 
