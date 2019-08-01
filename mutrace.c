@@ -413,10 +413,6 @@ static void load_functions(void) {
         LOAD_FUNC(backtrace_symbols);
         LOAD_FUNC(backtrace_symbols_fd);
 
-        LOAD_FUNC(real_backtrace);
-        LOAD_FUNC(real_backtrace_symbols);
-        LOAD_FUNC(real_backtrace_symbols_fd);
-
         loaded = true;
         recursive = false;
 }
